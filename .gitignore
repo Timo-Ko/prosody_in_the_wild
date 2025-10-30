@@ -1,0 +1,26 @@
+cat > .gitignore <<'EOF'
+# RStudio and R session files
+.Rhistory
+.RData
+.Rproj.user/
+.Ruserdata
+.Renviron
+.Rprofile
+.Rapp.history
+
+# Quarto / bookdown / site output
+_quarto/
+_site/
+*.utf8.md
+*.knit.md
+*.nb.html
+
+# OS artifacts
+.DS_Store
+
+# Authentication / API keys
+.httr-oauth
+
+# Project-specific: ignore data folder
+data/
+EOF

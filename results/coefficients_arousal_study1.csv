@@ -1,0 +1,15 @@
+"";"Variable";"Stand_Beta"
+"1";"slopeV0.500_sma3nz_amean";-0,555718261780103
+"2";"hammarbergIndexV_sma3nz_stddevNorm";-0,494308593132086
+"3";"spectralFluxUV_sma3nz_amean";0,217683686684375
+"4";"F1frequency_sma3nz_stddevNorm";0,179347382713523
+"5";"loudness_sma3_percentile20.0";0,171775272683783
+"6";"loudness_sma3_stddevNorm";-0,117757360816461
+"7";"shimmerLocaldB_sma3nz_stddevNorm";-0,0597771123614164
+"8";"F3amplitudeLogRelF0_sma3nz_stddevNorm";-0,0185336756993546
+"9";"loudnessPeaksPerSec";0,0102448325512134
+"10";"mfcc3V_sma3nz_amean";0,00631362126646448
+"11";"loudness_sma3_meanFallingSlope";0,00486997507757617
+"12";"alphaRatioUV_sma3nz_amean";-0,00138017925832755
+"13";"F3frequency_sma3nz_amean";-0,000161656960597543
+"14";"F0semitoneFrom27.5Hz_sma3nz_meanRisingSlope";-4,87981330887249e-07
