@@ -2,14 +2,14 @@
 
 # load data 
 
-voice_features <- readRDS("data/study1/voice_features_study1.rds")
+voice_features <- readRDS("data/voice_features.rds")
 
-affect_df <- readRDS("data/study1/affect_df.RData")
+affect_df <- readRDS("data/affect_df.rds")
 
 affect_df$user_id <- as.integer(affect_df$user_id)
 
 # load demographic data 
-demographics_df <- readRDS("data/study1/demographics_df.RData")
+demographics_df <- readRDS("data/demographics_df.RData")
 
 ### MERGE AFFECT WITH AUDIO FEATURES ####
 
@@ -21,10 +21,10 @@ affect_voice <- voice_features %>%
 
 # reorder columns
 affect_voice <- affect_voice  %>% 
-  dplyr::select(c("e_s_questionnaire_id", "questionnaireStartedTimestamp", "id", "user_id" , "Demo_A1", "Demo_GE1", "condition", "valence", "arousal"),everything())
+  dplyr::select(c("e_s_questionnaire_id", "questionnaireStartedTimestamp", "id", "user_id" , "Demo_A1", "Demo_GE1", "condition", "valence", "arousal", "stress"),everything())
 
 # save dfs 
-saveRDS(affect_voice, "data/study1/affect_voice_study1.rds")
+saveRDS(affect_voice, "data/affect_voice.rds")
 
 ### DESCRIPTIVES OF MERGED DATA ####
 

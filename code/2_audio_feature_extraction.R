@@ -3,49 +3,14 @@
 # Install and load required packages 
 
 packages <- c( "dplyr", "data.table", "stringr", "ggplot2", "lubridate", "jsonlite", "stringr")
-install.packages(setdiff(packages, rownames(installed.packages())))  
+#install.packages(setdiff(packages, rownames(installed.packages())))  
 lapply(packages, library, character.only = TRUE)
 
 # load data
 
-al_es <- readRDS("data/study1/al_ema.RData")
+al_es <- readRDS("data/al_ema.RData")
 
 ### DETERMINE SENTENCE CONDITION ####
-
-# read in pos/ neg/ neutral sentences
-
-pos_sentences <- c("Ich heirate die Person, die ich liebe",
-                   "Ich habe im Lotto gewonnen",
-                   "Meine Mannschaft hat gestern gewonnen",
-                   "Ich habe ein tolles Geschenk bekommen",
-                   "Ich habe eine Auszeichnung erhalten",
-                   "Ich fühle mich heute großartig",
-                   "Ich habe die Stelle bekommen",
-                   "Ich genieße jeden Tag meines Lebens",
-                   "Meine Kinder sehen so süß aus",
-                   "Ich wurde soeben befördert",
-                   "Seine Worte bringen mich zum Lächeln")
-
-# collapse  
-pos_sentences <- paste(pos_sentences, collapse = "|")
-
-
-#neg_sentences <- c()
-
-neutral_sentences <- c("Digitale Uhren sind weit verbreitet",
-                       "Der Kunde kauft eine graue Hose",
-                       "Der Teller steht auf dem runden Tisch",
-                       "Unser Körper besteht großteils aus Wasser",
-                       "Rohre bestehen aus Metall",
-                       "Ich sehe einen Teppich auf dem Boden",
-                       "Da sind Magnete am Kühlschrank",
-                       "Meine Tasche liegt im Zimmer",
-                       "Es stehen genügend Mülleimer im Raum",
-                       "Mein Löffel liegt noch auf dem Tisch",
-                       "Paul trägt einen langen Mantel")
-
-# collapse  
-neutral_sentences <- paste(neutral_sentences, collapse = "|")
 
 # search questions if they match any of the sentences 
 
@@ -152,8 +117,8 @@ egemaps_feature_df <- merge(egemaps_feature_df, al_es[,c("id", "e_s_questionnair
 compare_feature_df <- merge(compare_feature_df, al_es[,c("id", "e_s_questionnaire_id")], by = "id")
 
 # save feature sets
-saveRDS(egemaps_feature_df, "data/study1/egemaps_feature_df.rds")
-saveRDS(compare_feature_df, "data/study1/compare_feature_df.rds")
+saveRDS(egemaps_feature_df, "data/egemaps_feature_df.rds")
+saveRDS(compare_feature_df, "data/compare_feature_df.rds")
 
 ## match w corresponding user ids
 
@@ -173,6 +138,6 @@ compare_feature_df_all  <- compare_feature_df_all  %>%
 voice_features <- merge(egemaps_feature_df_all, compare_feature_df_all, by = c("id", "e_s_questionnaire_id", "user_id", "condition", "questionnaireStartedTimestamp"))
 
 # save
-saveRDS(voice_features, "data/study1/voice_features_study1.rds")
+saveRDS(voice_features, "data/voice_features.rds")
 
 # finish
