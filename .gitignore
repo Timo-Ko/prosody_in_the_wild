@@ -28,5 +28,6 @@ EOF
 # sentence list
 /code/sentence_tbl_helper.R
 
-# results archive
+# archive folders
 /results/archive/
+/code/archive/
