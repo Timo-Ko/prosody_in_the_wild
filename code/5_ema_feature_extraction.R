@@ -1,5 +1,5 @@
 # preparation
-packages <- c("dplyr", "stringr", "lubridate")
+packages <- c("dplyr", "stringr", "lubridate", "tidyr")
 invisible(lapply(packages, library, character.only = TRUE))
 
 affect_es <- readRDS("data/affect_ema.rds")
