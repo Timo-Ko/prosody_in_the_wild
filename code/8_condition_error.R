@@ -5,14 +5,14 @@ packages <- c( "dplyr", "tidyr", "ggplot2", "stringr")
 lapply(packages, library, character.only = TRUE)
 
 # read in benchmark results
-bmr_ema <- readRDS("results/bmr_affect.rds")
+bmr_ema <- readRDS("data/bmr_affect.rds")
 
 # load data
 affect_voice  <- readRDS("data/affect_voice.rds")
 
 ####  CONTENT SENTIMENT EFFECTS ON VOICE PREDICTION PERFORMANCE FOR AFFECT ####
 
-bmr_results_folds <- readRDS("results/results/bmr_results_folds.rds")
+bmr_results_folds <- readRDS("data/bmr_results_folds.rds")
 
 # Fold-wise MAE table
 mae_long <- bmr_results_folds %>%

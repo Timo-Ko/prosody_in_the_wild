@@ -241,7 +241,7 @@ future::plan("multisession", workers = 15) # enable parallelization
 
 bmr_sex = benchmark(bmgrid_sex, store_models = F, store_backends = F) # execute the benchmark
 
-saveRDS(bmr_sex, "results/bmr_sex.rds") # save results
+saveRDS(bmr_sex, "data/bmr_sex.rds") # save results
 
 ## main benchmark
 

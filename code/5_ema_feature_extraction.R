@@ -58,5 +58,37 @@ message("Conflicting multiple valence values within EMA instance: ", conflicts_v
 message("Conflicting multiple arousal values within EMA instance: ", conflicts_aro)
 
 
+## account for smartphone changes in the affect data
+
+changers = read.csv2("data/Smartphonewechsel_20220608.csv") # load smartphone changers
+
+## create unified if mapping
+
+id_mapping <- changers %>%
+  # Select relevant columns only 
+  dplyr::select(NewId, p_0001_2, p_0001_3, p_0001_new) %>%
+  # Convert from wide to long format
+  pivot_longer(cols = starts_with("p_"),
+               values_to = "old_id", 
+               names_to = "variable") %>%
+  # Drop NAs since these don't map to any old_id
+  drop_na() %>%
+  # Select only the new ID and old ID columns
+  dplyr::select(new_id = NewId, old_id) %>%
+  # Ensure all mappings are unique
+  dplyr::distinct()
+
+## apply new id mapping
+
+affect_df_changed <- affect_df %>%
+  # Left join to add new_id where applicable
+  dplyr::left_join(id_mapping, by = c("user_id" = "old_id")) %>%
+  # Replace old user_id with new_id where available
+  dplyr::mutate(user_id = coalesce(new_id, user_id)) %>%
+  # Drop the temporary new_id column
+  dplyr::select(-new_id)
+
 # 4) Save
-saveRDS(affect_df, "data/affect_df.rds")
+saveRDS(affect_df_changed, "data/affect_df.rds")
+
+# finish

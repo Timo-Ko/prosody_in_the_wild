@@ -112,4 +112,8 @@ nrow(audio_per_beep)
 table(audio_per_beep$n_audio_logs)
 table(audio_per_beep$audio_completed)
 
+# not accounding for smartphone changers!
+length(unique(al_es_filtered$user_id))
+length(unique(al_es_filtered$e_s_questionnaire_id))
+
 # finish
