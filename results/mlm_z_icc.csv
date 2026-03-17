@@ -1,0 +1,5 @@
+"metric","icc_user","icc_sentence"
+"z_VoicedSegmentsPerSec",0.633562889127023,0.0239951685929041
+"z_F0semitoneFrom27.5Hz_sma3nz_pctlrange0-2",0.667666964034863,0.00222564239093942
+"z_loudness_sma3_amean",0.8695278480025,0.000798082399157341
+"z_HNRdBACF_sma3nz_amean",0.874567276813373,0.0098850821833583

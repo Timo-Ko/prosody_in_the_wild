@@ -1,0 +1,9 @@
+"metric","contrast","beta_z","se","df","t","p","icc_user","icc_sentence"
+"F0semitoneFrom27.5Hz_sma3nz_pctlrange0-2","Negative vs Neutral",0.022,0.018,NA,1.24,0.217,0.668,0.002
+"F0semitoneFrom27.5Hz_sma3nz_pctlrange0-2","Positive vs Neutral",-0.004,0.02,NA,-0.21,0.832,0.668,0.002
+"HNRdBACF_sma3nz_amean","Negative vs Neutral",-0.072,0.033,NA,-2.14,0.0322,0.875,0.01
+"HNRdBACF_sma3nz_amean","Positive vs Neutral",0.061,0.04,NA,1.51,0.13,0.875,0.01
+"VoicedSegmentsPerSec","Negative vs Neutral",0.109,0.045,NA,2.45,0.0141,0.634,0.024
+"VoicedSegmentsPerSec","Positive vs Neutral",-0.129,0.054,NA,-2.41,0.016,0.634,0.024
+"loudness_sma3_amean","Negative vs Neutral",-0.034,0.012,NA,-2.77,0.00555,0.87,0.001
+"loudness_sma3_amean","Positive vs Neutral",-0.036,0.014,NA,-2.59,0.00966,0.87,0.001
