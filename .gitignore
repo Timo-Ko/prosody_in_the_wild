@@ -24,3 +24,6 @@ _site/
 # Project-specific: ignore data folder
 data/
 EOF
+
+# sentence list
+/code/sentence_tbl_helper.R
