@@ -12,14 +12,14 @@ source("code/functions/get_ema_beeps.R")
 
 # connect to phonestudy database
 
-# Sensing database
-phonestudy = dbConnect(
-  drv = RMariaDB::MariaDB(),
-  username = "rstudio",
-  password = rstudioapi::askForPassword("Enter your password"),
-  host = 'mc-ibt01.unisg.ch',
-  port = 3306,
-  dbname = "ssps")
+phonestudy <- DBI::dbConnect(
+  drv      = RMariaDB::MariaDB(),
+  host     = Sys.getenv("PHONESTUDY_DB_HOST"),
+  port     = as.integer(Sys.getenv("PHONESTUDY_DB_PORT")),
+  dbname   = Sys.getenv("PHONESTUDY_DB_NAME"),
+  username = Sys.getenv("PHONESTUDY_DB_USER"),
+  password = rstudioapi::askForPassword("Enter your password")
+)
 
 # pull es_answer data
 ps_esanswer = dbFetch(dbSendQuery(phonestudy , 'select * from ps_esanswer'))
