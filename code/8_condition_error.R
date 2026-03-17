@@ -10,7 +10,7 @@ bmr_ema <- readRDS("results/bmr_affect.rds")
 # load data
 affect_voice  <- readRDS("data/affect_voice.rds")
 
-####  CONTENT SENTIMENT EFFECTS ON VOICE PREDICTION PERFORMANCE ####
+####  CONTENT SENTIMENT EFFECTS ON VOICE PREDICTION PERFORMANCE FOR AFFECT ####
 
 bmr_results_folds <- readRDS("results/results/bmr_results_folds.rds")
 

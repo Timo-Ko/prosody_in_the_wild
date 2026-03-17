@@ -61,22 +61,34 @@ hist(voice_features_changed$VoicedSegmentsPerSec, breaks = 1000) #plot (normal d
 hist(voice_features_changed$MeanVoicedSegmentLengthSec, breaks = 1000) #plot (normal distribution)
 hist(voice_features_changed$HNRdBACF_sma3nz_amean, breaks = 1000) #plot (normal distribution)
 
-# remove all instances based on those features
-voice_features_cleaned <- voice_features_changed %>%
+# remove instances based on human voice filter criteria
+voice_features_cleaned_human <- voice_features_changed %>%
   dplyr::filter(
     voicingFinalUnclipped_sma_amean >= 0.5 &
     VoicedSegmentsPerSec > 0 &
-    MeanVoicedSegmentLengthSec > 0 &
-    HNRdBACF_sma3nz_amean > 0
+    MeanVoicedSegmentLengthSec > 0 
   )
 
 # investigate excluded samples
-removed_cases <- anti_join(voice_features_changed, voice_features_cleaned)
+removed_cases_human <- anti_join(voice_features_changed, voice_features_cleaned_human)
 
-nrow(removed_cases) # number of removed cases 
-length(unique(removed_cases$user_id)) # number of user_ids of removed cases
+nrow(removed_cases_human) # number of removed cases 
+length(unique(removed_cases_human$user_id)) # number of user_ids of removed cases
+
+
+# remove instances based on HNR criteria
+voice_features_cleaned_hnr <- voice_features_cleaned_human %>%
+  dplyr::filter(
+      HNRdBACF_sma3nz_amean > 0
+  )
+
+# investigate excluded samples
+removed_cases_hnr <- anti_join(voice_features_cleaned_human, voice_features_cleaned_hnr)
+
+nrow(removed_cases_hnr) # number of removed cases 
+length(unique(removed_cases_hnr$user_id)) # number of user_ids of removed cases
 
 # save cleaned df
-saveRDS(voice_features_cleaned, "data/voice_features_cleaned.rds")
+saveRDS(voice_features_cleaned_hnr, "data/voice_features_cleaned.rds")
 
 ## FINISH

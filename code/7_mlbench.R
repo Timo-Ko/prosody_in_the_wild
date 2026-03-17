@@ -265,13 +265,13 @@ future::plan("multisession", workers = 15) # enable parallelization
 
 bmr_affect = benchmark(bmgrid_affect, store_models = F, store_backends = F) # execute the benchmark
 
-saveRDS(bmr_affect, "results/bmr_affect.rds") # save results
+saveRDS(bmr_affect, "data/bmr_affect.rds") # save results
 
 #### BENCHMARK RESULTS ####
 
 # read in benchmark results
-bmr_sex <- readRDS("results/bmr_sex.rds")
-bmr_affect <- readRDS("results/bmr_affect.rds")
+bmr_sex <- readRDS("data/bmr_sex.rds")
+bmr_affect <- readRDS("data/bmr_affect.rds")
 
 ## view aggregated performance
 bmr_sex$aggregate(msrs(c("classif.acc", "classif.bacc", "classif.auc")))
@@ -286,7 +286,7 @@ bmr_affect$aggregate(mes)
 
 bmr_results_folds <- extract_bmr_results(bmr_affect, mes)
 
-saveRDS(bmr_results_folds, "results/bmr_results_folds.rds")
+saveRDS(bmr_results_folds, "data/bmr_results_folds.rds")
 
 ## create combined overview table of performance
 
