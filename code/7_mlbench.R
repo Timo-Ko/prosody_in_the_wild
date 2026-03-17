@@ -2,7 +2,7 @@
 
 # Install and load required packages 
 
-packages <- c( "dplyr", "parallel", "data.table", "ggplot2", "mlr3", "mlr3learners", "mlr3tuning","ranger", "glmnet", "future", "remotes", "stringr")
+packages <- c( "dplyr", "parallel", "data.table", "ggplot2", "mlr3", "mlr3learners", "ranger", "glmnet", "future", "remotes", "stringr")
 #install.packages(setdiff(packages, rownames(installed.packages())))  
 lapply(packages, library, character.only = TRUE)
 
@@ -47,25 +47,6 @@ compare_sex = TaskClassif$new(id = "compare_sex",
                               target = "Demo_GE1")
 
 ## affective states
-
-# check for missing targets
-
-affect_voice %>%
-  summarise(
-    n_valence = sum(!is.na(valence)),
-    n_arousal = sum(!is.na(arousal)),
-    n_stress  = sum(!is.na(stress))
-  )
-
-# keep only complete ema obs
-
-affect_voice <- affect_voice %>%
-  dplyr::filter(
-    !is.na(valence),
-    !is.na(arousal),
-    !is.na(stress)
-  )
-
 
 # egemaps
 
@@ -181,9 +162,12 @@ compare_arousal = TaskRegr$new(
 
 ## add blocking
 
-# gender
-egemaps_gender$col_roles$group = "user_id"
-egemaps_gender$col_roles$feature = setdiff(egemaps_gender$col_roles$feature, "user_id")
+# sex
+egemaps_sex$col_roles$group = "user_id"
+egemaps_sex$col_roles$feature = setdiff(egemaps_sex$col_roles$feature, "user_id")
+
+compare_sex$col_roles$group = "user_id"
+compare_sex$col_roles$feature = setdiff(compare_sex$col_roles$feature, "user_id")
 
 # affective states
 
@@ -247,13 +231,13 @@ progressr::handlers("progress")
 
 ## sex classification
 
-bmgrid_gender = benchmark_grid(
+bmgrid_sex = benchmark_grid(
   task = c(egemaps_sex, compare_sex),
   learner = list(lrn("classif.featureless", predict_type = "prob"), lrn("classif.ranger", num.trees =1000, predict_type = "prob")),
   resampling = resampling
 )
 
-future::plan("multisession", workers = 10) # enable parallelization
+future::plan("multisession", workers = 15) # enable parallelization
 
 bmr_sex = benchmark(bmgrid_sex, store_models = F, store_backends = F) # execute the benchmark
 
@@ -261,7 +245,7 @@ saveRDS(bmr_sex, "results/bmr_sex.rds") # save results
 
 ## main benchmark
 
-bmgrid_ema = benchmark_grid(
+bmgrid_affect = benchmark_grid(
   task = c(egemaps_valence,
            egemaps_arousal,
            egemaps_valence_neg,
@@ -277,24 +261,24 @@ bmgrid_ema = benchmark_grid(
   resampling = resampling
 )
 
-future::plan("multisession", workers = 10) # enable parallelization
+future::plan("multisession", workers = 15) # enable parallelization
 
-bmr_ema = benchmark(bmgrid_ema, store_models = F, store_backends = F) # execute the benchmark
+bmr_affect = benchmark(bmgrid_affect, store_models = F, store_backends = F) # execute the benchmark
 
-saveRDS(bmr_ema, "results/bmr_ema.rds") # save results
+saveRDS(bmr_affect, "results/bmr_affect.rds") # save results
 
 #### BENCHMARK RESULTS ####
 
 # read in benchmark results
 bmr_sex <- readRDS("results/bmr_sex.rds")
-bmr_ema <- readRDS("results/bmr_ema.rds")
+bmr_affect <- readRDS("results/bmr_affect.rds")
 
 ## view aggregated performance
-bmr_gender$aggregate(msrs(c("classif.acc", "classif.auc")))
+bmr_sex$aggregate(msrs(c("classif.acc", "classif.bacc", "classif.auc")))
 
 mes = c(msr_ccc, msrs(c("regr.srho", "regr.rsq", "regr.mae", "regr.rmse"))) # set performance measures
 
-bmr_ema$aggregate(mes)
+bmr_affect$aggregate(mes)
 
 # set measures for table
 

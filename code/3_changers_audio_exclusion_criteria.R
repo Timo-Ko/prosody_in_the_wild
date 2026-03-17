@@ -33,6 +33,22 @@ voice_features_changed <- voice_features %>%
   # Drop the temporary new_id column
   dplyr::select(-new_id)
 
+# get stats before cleaning 
+nrow(voice_features_changed)
+length(unique(voice_features_changed$user_id))
+length(unique(voice_features_changed$e_s_questionnaire_id))
+
+# rows (records) per participant
+rows_per_user <- as.data.frame(table(voice_features_changed$user_id))
+names(rows_per_user) <- c("user_id", "n_rows")
+rows_per_user$n_rows <- as.numeric(as.character(rows_per_user$n_rows))
+
+mean_rows <- mean(rows_per_user$n_rows)
+sd_rows   <- sd(rows_per_user$n_rows)
+
+mean_rows
+sd_rows
+
 # save data
 saveRDS(voice_features_changed, "data/voice_features_changed.rds") # save voice data
 

@@ -49,16 +49,16 @@ ps_esanswer_extended <- ps_esanswer_extended %>%
 affect_es = ps_esanswer_extended  %>% 
   dplyr::filter(page_id == 1 | page_id == 2) 
 
-ema_df = ps_esanswer_extended  %>% 
-  dplyr::filter(item_id == 61 | item_id == 62) 
+# ema_df = ps_esanswer_extended  %>% 
+#   dplyr::filter(item_id == 61 | item_id == 62) 
 
-# select only page id 21, 22, and 23 because contains audio logging data
+# select only page id 20, 21, 22, and 23 because contains audio logging data
 
 al_es = ps_esanswer_extended  %>% 
-  dplyr::filter(page_id == 21 | page_id == 22 | page_id == 23) 
+  dplyr::filter(page_id == 20 | page_id == 21 | page_id == 22 | page_id == 23) 
 
-audio = ps_esanswer_extended  %>% 
-  dplyr::filter(item_id == 31) 
+# audio = ps_esanswer_extended  %>% 
+#   dplyr::filter(item_id == 31) 
 
 ### CHECK FOR GHOST EVENTS ####
 
@@ -101,70 +101,66 @@ saveRDS(al_es_filtered, "data/al_ema.rds")
 
 ### compute ema / audio logging compliance 
 
-## 0) All beeps (prompts) -----------------------------------------------
+es_q <- getEmaBeeps(ps_esquestionnaire)   
 
-es_q <- getEmaBeeps(changes.table = "no")   
+## 1) Audio answers for EMAs --------------------------------------
 
-# Convert notificationTimestamp to POSIXct and select only evening EMAs
-es_q_evening <- es_q %>%
-  mutate(notification_ts = ymd_hms(notificationTimestamp)) %>%
-  filter(hour(notification_ts) >= 18 & hour(notification_ts) <= 24) # evening range
+# # Voice-logging items (pages 21/22/23)
+# al_es <- ps_esanswer_extended %>%
+#   filter(page_id %in% c(21, 22, 23))
 
-## 1) Audio answers for those EMAs --------------------------------------
-
-# Voice-logging items (pages 21/22/23)
-al_es <- ps_esanswer_extended %>%
-  filter(page_id %in% c(21, 22, 23))
-
-# Define when a voice task counts as "completed"
-audio_per_beep_evening <- al_es %>%
+# Define when a voice task counts as "completed", rows are EMA instances
+audio_per_beep <- al_es %>%
   group_by(user_id, es_questionnaire_id = e_s_questionnaire_id) %>%
   summarise(
     n_audio_logs    = n(),
-    audio_completed = n_audio_logs > 0,   # always TRUE here, but explicit
+    audio_completed = n_audio_logs == 4, 
     .groups = "drop"
   )
 
-## 2) Merge beeps + audio info ------------------------------------------
+table(audio_per_beep_evening$n_audio_logs)
+table(audio_per_beep_evening$audio_completed)
 
-ema_voice_evening <- es_q_evening %>%
-  left_join(audio_per_beep_evening,
-            by = c("user_id", "es_questionnaire_id")) %>%
-  mutate(
-    audio_completed = replace_na(audio_completed, FALSE)
-  )
-
+# ## 2) Merge beeps + audio info ------------------------------------------
+# 
+# ema_voice <- es_q %>%
+#   left_join(audio_per_beep,
+#             by = c("user_id", "es_questionnaire_id")) %>%
+#   mutate(
+#     audio_completed = replace_na(audio_completed, FALSE)
+#   )
+#
 ## 3) Compliance rates --------------------------------------------------
-
-# (A) EMA Compliance among all evening beeps sent
-ema_compliance_all_evening <- ema_voice_evening %>%
-  summarise(
-    n_evening_beeps = n(),
-    n_ema_completed    = sum(beep_answered),
-    compliance_all  = n_ema_completed / n_evening_beeps
-  )
-
-ema_compliance_all_evening
-
-# (B) Compliance among all evening beeps sent
-voice_compliance_all_evening <- ema_voice_evening %>%
-  summarise(
-    n_evening_beeps = n(),
-    n_with_audio    = sum(audio_completed),
-    compliance_all  = n_with_audio / n_evening_beeps
-  )
-
-voice_compliance_all_evening
-
-# (C) compliance among evening beeps where the EMA was answered
-voice_compliance_answered_evening <- ema_voice_evening %>%
-  filter(beep_answered == 1) %>%
-  summarise(
-    n_evening_answered = n(),
-    n_with_audio       = sum(audio_completed),
-    compliance_ans     = n_with_audio / n_evening_answered
-  )
-
-voice_compliance_answered_evening
+#
+# # (A) EMA Compliance among all evening beeps sent
+# ema_compliance_all_evening <- ema_voice %>%
+#   summarise(
+#     n_evening_beeps = n(),
+#     n_ema_completed    = sum(beep_answered),
+#     compliance_all  = n_ema_completed / n_evening_beeps
+#   )
+# 
+# ema_compliance_all_evening
+#
+# # (B) Compliance among all evening beeps sent
+# voice_compliance <- ema_voice %>%
+#   summarise(
+#     n_evening_beeps = n(),
+#     n_with_audio    = sum(audio_completed),
+#     compliance_all  = n_with_audio / n_evening_beeps
+#   )
+# 
+# voice_compliance
+# 
+# # (C) compliance among evening beeps where the EMA was answered
+# voice_compliance_answered_evening <- ema_voice %>%
+#   filter(beep_answered == 1) %>%
+#   summarise(
+#     n_evening_answered = n(),
+#     n_with_audio       = sum(audio_completed),
+#     compliance_ans     = n_with_audio / n_evening_answered
+#   )
+# 
+# voice_compliance_answered_evening
 
 # finish

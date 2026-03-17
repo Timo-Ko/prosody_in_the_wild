@@ -2,11 +2,13 @@
 
 # load data 
 
-voice_features <- readRDS("data/voice_features.rds")
+voice_features <- readRDS("data/voice_features_cleaned.rds")
 
 affect_df <- readRDS("data/affect_df.rds")
 
-affect_df$user_id <- as.integer(affect_df$user_id)
+# remove unneeded cols
+affect_df$n_valence_unique <- NULL
+affect_df$n_arousal_unique <- NULL
 
 # load demographic data 
 demographics_df <- readRDS("data/demographics_df.RData")
@@ -21,7 +23,7 @@ affect_voice <- voice_features %>%
 
 # reorder columns
 affect_voice <- affect_voice  %>% 
-  dplyr::select(c("e_s_questionnaire_id", "questionnaireStartedTimestamp", "id", "user_id" , "Demo_A1", "Demo_GE1", "condition", "valence", "arousal", "stress"),everything())
+  dplyr::select(c("e_s_questionnaire_id", "questionnaireStartedTimestamp", "id", "user_id" , "Demo_A1", "Demo_GE1", "condition", "valence", "arousal"),everything())
 
 # save dfs 
 saveRDS(affect_voice, "data/affect_voice.rds")

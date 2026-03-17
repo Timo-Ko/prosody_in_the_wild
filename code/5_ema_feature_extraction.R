@@ -1,102 +1,62 @@
-### PREPARATION ####
-
-# Install and load required packages 
-
-packages <- c( "dplyr", "data.table", "stringr", "ggplot2", "lubridate")
-#install.packages(setdiff(packages, rownames(installed.packages())))  
-lapply(packages, library, character.only = TRUE)
-
-# load data
+# preparation
+packages <- c("dplyr", "stringr", "lubridate")
+invisible(lapply(packages, library, character.only = TRUE))
 
 affect_es <- readRDS("data/affect_ema.rds")
 
-### CONVERT EMA ANSWERS TO NUMERICS ####
-
-# create new empty columns for numeric responses
-affect_es$valence <- NA_real_
-affect_es$arousal <- NA_real_
-affect_es$stress  <- NA_real_
-
-# convert affect responses to numerics
-affect_es <- affect_es %>%
-  # normalize answer text (remove punctuation/whitespace, lowercase)
-  mutate(
-    answer_text_clean = answer_text %>%
-      tolower() %>%
-      gsub("[^[:alnum:]]", "", .)
-  ) %>%
-  # valence
-  mutate(
-    valence = case_when(
-      answer_text_clean == "sehrangenehm"     ~ 6,
-      answer_text_clean == "angenehm"         ~ 5,
-      answer_text_clean == "eherangenehm"     ~ 4,
-      answer_text_clean == "eherunangenehm"   ~ 3,
-      answer_text_clean == "unangenehm"       ~ 2,
-      answer_text_clean == "sehrunangenehm"   ~ 1,
-      TRUE                                   ~ valence
+# 1) Clean + code (still label-based; best practice is to also filter by item/question)
+affect_es_coded <- affect_es %>%
+  dplyr::mutate(
+    answer_text_clean = tolower(answer_text),
+    answer_text_clean = gsub("[^[:alnum:]]", "", answer_text_clean),
+    valence = dplyr::case_when(
+      answer_text_clean == "sehrangenehm"   ~ 6,
+      answer_text_clean == "angenehm"       ~ 5,
+      answer_text_clean == "eherangenehm"   ~ 4,
+      answer_text_clean == "eherunangenehm" ~ 3,
+      answer_text_clean == "unangenehm"     ~ 2,
+      answer_text_clean == "sehrunangenehm" ~ 1,
+      TRUE ~ NA_real_
     ),
-    # arousal
-    arousal = case_when(
+    arousal = dplyr::case_when(
       answer_text_clean == "sehraktiviert" ~ 6,
       answer_text_clean == "aktiviert"     ~ 5,
       answer_text_clean == "eheraktiviert" ~ 4,
       answer_text_clean == "eherinaktiv"   ~ 3,
       answer_text_clean == "inaktiv"       ~ 2,
       answer_text_clean == "sehrinaktiv"   ~ 1,
-      TRUE                                 ~ arousal
-    ),
-    # stress (0–5 as provided)
-    stress = case_when(
-      answer_text_clean == "sehrentspannt"   ~ 0,
-      answer_text_clean == "entspannt"       ~ 1,
-      answer_text_clean == "eherentspannt"   ~ 2,
-      answer_text_clean == "ehergestresst"   ~ 3,
-      answer_text_clean == "gestresst"       ~ 4,
-      answer_text_clean == "sehrgestresst"   ~ 5,
-      TRUE                                   ~ stress
+      TRUE ~ NA_real_
     )
   )
-# Build wide-ish EMA table (one row per e_s_questionnaire_id) with valence, arousal, stress
 
-affect_df_raw <- data.frame(
-  e_s_questionnaire_id = unique(affect_es$e_s_questionnaire_id)
-)
+# Helper: first non-NA value
+first_non_na <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) NA_real_ else x[1]
+}
 
-# add valence / arousal / stress (some ES instances may have only a subset answered)
-affect_df_raw <- merge(
-  affect_df_raw,
-  na.omit(affect_es[, c("e_s_questionnaire_id", "valence")]),
-  by = "e_s_questionnaire_id",
-  all.x = TRUE
-)
+# 2) Aggregate to one row per EMA instance, with conflict diagnostics
+affect_df <- affect_es_coded %>%
+  dplyr::group_by(e_s_questionnaire_id) %>%
+  dplyr::summarise(
+    user_id = dplyr::first(user_id),
+    questionnaireStartedTimestamp = dplyr::first(questionnaireStartedTimestamp),
+    
+    valence = first_non_na(valence),
+    arousal = first_non_na(arousal),
+    # stress = first_non_na(stress)  # add once you code it
+    
+    n_valence_unique = dplyr::n_distinct(valence[!is.na(valence)]),
+    n_arousal_unique = dplyr::n_distinct(arousal[!is.na(arousal)]),
+    .groups = "drop"
+  )
 
-affect_df_raw <- merge(
-  affect_df_raw,
-  na.omit(affect_es[, c("e_s_questionnaire_id", "arousal")]),
-  by = "e_s_questionnaire_id",
-  all.x = TRUE
-)
+# 3) Flag potential problems (should generally be 0)
+conflicts_val <- sum(affect_df$n_valence_unique > 1, na.rm = TRUE)
+conflicts_aro <- sum(affect_df$n_arousal_unique > 1, na.rm = TRUE)
+message("Conflicting multiple valence values within EMA instance: ", conflicts_val)
+message("Conflicting multiple arousal values within EMA instance: ", conflicts_aro)
 
-affect_df_raw <- merge(
-  affect_df_raw,
-  na.omit(affect_es[, c("e_s_questionnaire_id", "stress")]),
-  by = "e_s_questionnaire_id",
-  all.x = TRUE
-)
 
-## match with corresponding user ids + timestamp
-affect_df_raw_merged <- merge(
-  affect_df_raw,
-  affect_es[, c("e_s_questionnaire_id", "user_id", "questionnaireStartedTimestamp")],
-  by = "e_s_questionnaire_id",
-  all.x = TRUE
-)
-
-# remove duplicates created by merge (keep first per ES instance)
-affect_df_raw_merged <- affect_df_raw_merged[!duplicated(affect_df_raw_merged$e_s_questionnaire_id), ]
-
-# save
-saveRDS(affect_df_raw_merged, "data/affect_df.rds")
-
-# finish
+# 4) Save
+saveRDS(affect_df, "data/affect_df.rds")
