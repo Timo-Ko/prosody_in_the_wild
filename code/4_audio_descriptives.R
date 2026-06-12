@@ -214,7 +214,7 @@ results_table <- fixed_z %>%
 
 results_table
 
-write.csv(results_table, "results/table1_mlm.csv")
+write.csv(results_table, "results/table1_mlm.csv", row.names = FALSE)
 
 
 ## FINISH
