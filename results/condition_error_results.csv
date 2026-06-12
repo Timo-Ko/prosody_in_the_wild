@@ -1,0 +1,7 @@
+"target","condition","Md_mae","SD_mae","p_friedman"
+"Arousal","Positive",1.139,0.098,0.301
+"Arousal","Neutral",1.123,0.098,0.301
+"Arousal","Negative",1.129,0.091,0.301
+"Valence","Positive",0.795,0.053,0.741
+"Valence","Neutral",0.81,0.06,0.741
+"Valence","Negative",0.815,0.053,0.741

@@ -147,6 +147,7 @@ mae_long <- bmr_results_folds_cond %>%
   rename(mae = regr.mae) %>%
   arrange(target, iteration, condition)
 
+
 friedman_res <- mae_long %>%
   group_by(target) %>%
   summarise(
@@ -154,6 +155,29 @@ friedman_res <- mae_long %>%
     .groups = "drop"
   )
 
-friedman_res
+condition_mae_summary <- mae_long %>%
+  group_by(target, condition) %>%
+  summarise(
+    Md_mae = median(mae, na.rm = TRUE),
+    SD_mae = sd(mae, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+condition_error_table <- condition_mae_summary %>%
+  left_join(friedman_res, by = "target") %>%
+  mutate(
+    Md_mae = round(Md_mae, 3),
+    SD_mae = round(SD_mae, 3),
+    p_friedman = signif(p_friedman, 3)
+  ) %>%
+  arrange(target, condition)
+
+condition_error_table
+
+write.csv(
+  condition_error_table,
+  "results/condition_error_results.csv",
+  row.names = FALSE
+)
 
 # finish

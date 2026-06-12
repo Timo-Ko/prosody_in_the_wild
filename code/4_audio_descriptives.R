@@ -195,6 +195,10 @@ icc_z <- tibble::tibble(
 
 results_table <- fixed_z %>%
   left_join(icc_z, by = "metric") %>%
+  mutate(
+    p_raw = `Pr(>|t|)`,
+    p_fdr = p.adjust(p_raw, method = "BH")
+  ) %>%
   transmute(
     metric = sub("^z_", "", metric),
     contrast = contrast,
@@ -202,13 +206,11 @@ results_table <- fixed_z %>%
     se = round(`Std. Error`, 3),
     df = if ("df" %in% names(.)) round(df, 1) else NA_real_,
     t = round(`t value`, 2),
-    p = signif(`Pr(>|t|)`, 3),
+    p_raw = signif(p_raw, 3),
+    p_fdr = signif(p_fdr, 3),
     icc_user = round(icc_user, 3)
   ) %>%
   arrange(metric, contrast)
-
-# correct p vals
-results_table$p_fdr <- p.adjust(results_table$p, method = "BH")
 
 results_table
 

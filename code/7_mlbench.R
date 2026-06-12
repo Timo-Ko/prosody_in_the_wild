@@ -15,7 +15,6 @@ affect_voice  <- readRDS("data/affect_voice.rds")
 
 # load required functions
 source("code/functions/bmr_results.R")
-source("code/functions/sign_test_folds.R")
 source("code/functions/ccc_measure.R")
 
 # make sure all feature names are valid for ml
@@ -237,7 +236,7 @@ bmgrid_sex = benchmark_grid(
   resampling = resampling
 )
 
-future::plan("multisession", workers = 15) # enable parallelization
+future::plan("multisession", workers = 10) # enable parallelization
 
 bmr_sex = benchmark(bmgrid_sex, store_models = F, store_backends = F) # execute the benchmark
 
@@ -261,7 +260,7 @@ bmgrid_affect = benchmark_grid(
   resampling = resampling
 )
 
-future::plan("multisession", workers = 15) # enable parallelization
+future::plan("multisession", workers = 10) # enable parallelization
 
 bmr_affect = benchmark(bmgrid_affect, store_models = F, store_backends = F) # execute the benchmark
 
@@ -273,26 +272,52 @@ saveRDS(bmr_affect, "data/bmr_affect.rds") # save results
 bmr_sex <- readRDS("data/bmr_sex.rds")
 bmr_affect <- readRDS("data/bmr_affect.rds")
 
-## view aggregated performance
-bmr_sex$aggregate(msrs(c("classif.acc", "classif.bacc", "classif.auc")))
+## sex classification results: median and SD across CV folds
 
-mes = c(msr_ccc, msrs(c("regr.srho", "regr.rsq", "regr.mae", "regr.rmse"))) # set performance measures
+sex_measures <- msrs(c("classif.acc", "classif.bacc", "classif.auc"))
 
-bmr_affect$aggregate(mes)
+sex_results_folds <- extract_bmr_results(bmr_sex, sex_measures)
 
-# set measures for table
+sex_table <- sex_results_folds %>%
+  dplyr::group_by(task_id, learner_id) %>%
+  dplyr::summarise(
+    Md_acc  = median(classif.acc, na.rm = TRUE),
+    SD_acc  = sd(classif.acc, na.rm = TRUE),
+    Md_bacc = median(classif.bacc, na.rm = TRUE),
+    SD_bacc = sd(classif.bacc, na.rm = TRUE),
+    Md_auc  = median(classif.auc, na.rm = TRUE),
+    SD_auc  = sd(classif.auc, na.rm = TRUE),
+    .groups = "drop"
+  )
 
-## deep dive: retrieve benchmark results across tasks and learners for single cv folds
+write.csv(sex_table, "results/sex_results.csv", row.names = FALSE)
 
-bmr_results_folds <- extract_bmr_results(bmr_affect, mes)
 
-saveRDS(bmr_results_folds, "data/bmr_results_folds.rds")
+## affect prediction results: median and SD across CV folds
 
-## create combined overview table of performance
+affect_measures <- c(
+  msr_ccc,
+  msrs(c("regr.srho", "regr.rsq", "regr.mae", "regr.rmse"))
+)
 
-pred_table <- results_table(bmr_results_folds)
+affect_results_folds <- extract_bmr_results(bmr_affect, affect_measures)
 
-# save prediction tables
-write.csv(pred_table, "results/pred_table.csv")
+affect_table <- affect_results_folds %>%
+  dplyr::group_by(task_id, learner_id) %>%
+  dplyr::summarise(
+    Md_srho = median(regr.srho, na.rm = TRUE),
+    SD_srho = sd(regr.srho, na.rm = TRUE),
+    Md_ccc  = median(regr.ccc, na.rm = TRUE),
+    SD_ccc  = sd(regr.ccc, na.rm = TRUE),
+    Md_rsq  = median(regr.rsq, na.rm = TRUE),
+    SD_rsq  = sd(regr.rsq, na.rm = TRUE),
+    Md_mae  = median(regr.mae, na.rm = TRUE),
+    SD_mae  = sd(regr.mae, na.rm = TRUE),
+    Md_rmse = median(regr.rmse, na.rm = TRUE),
+    SD_rmse = sd(regr.rmse, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+write.csv(affect_table, "results/affect_results.csv", row.names = FALSE)
 
 # finish
