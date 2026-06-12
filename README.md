@@ -1,6 +1,6 @@
 # Collecting Prosody in the Wild: A Content-Controlled, Privacy-First Smartphone Protocol and Empirical Evaluation
 
-This repository contains analysis scripts and reproducibility materials accompanying the paper:
+This repository contains analysis scripts and aggregated results for the paper:
 “Collecting Prosody in the Wild: A Content-Controlled, Privacy-First Smartphone Protocol and Empirical Evaluation”.
 
 The paper introduces and empirically evaluates a content-controlled, privacy-first smartphone protocol for collecting prosodic speech data in everyday life. The protocol uses scripted read-aloud sentences, extracts acoustic features on the participant’s device using openSMILE, deletes raw audio immediately, and transmits only derived feature-level data for analysis.
