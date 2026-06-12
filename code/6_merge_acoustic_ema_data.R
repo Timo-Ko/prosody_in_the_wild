@@ -1,5 +1,7 @@
 ### PREPARATION ####
 
+library(dplyr)
+
 # load data 
 
 voice_features <- readRDS("data/voice_features_cleaned.rds")

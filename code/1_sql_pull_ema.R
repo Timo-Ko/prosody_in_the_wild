@@ -1,7 +1,7 @@
 ### PREPARATION ####
 
 # install and load required packages 
-packages <- c( "RMariaDB", "DBI", "dbplyr", "lubridate", "tidyr")
+packages <- c( "RMariaDB", "DBI", "dbplyr", "lubridate", "tidyr", "dplyr")
 #install.packages(setdiff(packages, rownames(installed.packages())))  
 lapply(packages, library, character.only = TRUE)
 
@@ -93,28 +93,31 @@ saveRDS(al_es_filtered, "data/al_ema.rds")
 
 ### compute ema / audio logging compliance 
 
-# Define when a voice task counts as "completed", rows are EMA instances
-audio_per_beep <- al_es_filtered %>%
-  group_by(user_id, es_questionnaire_id = e_s_questionnaire_id) %>%
-  summarise(
-    n_audio_logs    = n(),
-    audio_completed = n_audio_logs == 4, 
+voice_compliance_by_prompt <- al_es_filtered %>%
+  dplyr::group_by(user_id, e_s_questionnaire_id) %>%
+  dplyr::summarise(
+    saw_instruction = any(page_id == 20),
+    n_recordings = sum(page_id %in% c(21, 22, 23)),
+    completed_all_recordings = all(c(21, 22, 23) %in% page_id),
     .groups = "drop"
   )
 
 # inspect completions
-nrow(audio_per_beep)
-table(audio_per_beep$n_audio_logs)
-table(audio_per_beep$audio_completed)
+nrow(voice_compliance_by_prompt)
+table(voice_compliance_by_prompt$n_recordings)
+table(voice_compliance_by_prompt$completed_all_recordings)
+sum(!voice_compliance_by_prompt$saw_instruction)
 
-voice_compliance <- audio_per_beep %>%
-  summarise(
-    n_voice_prompts = n(),
-    n_instruction_only = sum(n_audio_logs == 1),
-    n_voice_initiated = sum(n_audio_logs > 1),
-    n_completed_one_recording = sum(n_audio_logs == 2),
-    n_completed_two_recordings = sum(n_audio_logs == 3),
-    n_completed_all_recordings = sum(n_audio_logs == 4),
+voice_compliance <- voice_compliance_by_prompt %>%
+  dplyr::summarise(
+    n_voice_prompts = dplyr::n(),
+    n_instruction_only = sum(n_recordings == 0),
+    n_voice_initiated = sum(n_recordings > 0),
+    n_completed_one_recording = sum(n_recordings == 1),
+    n_completed_two_recordings = sum(n_recordings == 2),
+    n_completed_all_recordings = sum(n_recordings == 3),
+    n_total_recordings = sum(n_recordings),
+    n_missing_instruction_page = sum(!saw_instruction),
     initiation_rate = n_voice_initiated / n_voice_prompts,
     completion_rate_conditional = n_completed_all_recordings / n_voice_initiated
   )
@@ -126,9 +129,5 @@ write.csv(
   "results/voice_compliance.csv",
   row.names = FALSE
 )
-
-# this is not accounting for smartphone changers!
-length(unique(al_es_filtered$user_id))
-length(unique(al_es_filtered$e_s_questionnaire_id))
 
 # finish
