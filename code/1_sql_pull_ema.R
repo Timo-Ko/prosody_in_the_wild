@@ -112,7 +112,27 @@ nrow(audio_per_beep)
 table(audio_per_beep$n_audio_logs)
 table(audio_per_beep$audio_completed)
 
-# not accounding for smartphone changers!
+voice_compliance <- audio_per_beep %>%
+  summarise(
+    n_voice_prompts = n(),
+    n_instruction_only = sum(n_audio_logs == 1),
+    n_voice_initiated = sum(n_audio_logs > 1),
+    n_completed_one_recording = sum(n_audio_logs == 2),
+    n_completed_two_recordings = sum(n_audio_logs == 3),
+    n_completed_all_recordings = sum(n_audio_logs == 4),
+    initiation_rate = n_voice_initiated / n_voice_prompts,
+    completion_rate_conditional = n_completed_all_recordings / n_voice_initiated
+  )
+
+voice_compliance
+
+write.csv(
+  voice_compliance,
+  "results/voice_compliance.csv",
+  row.names = FALSE
+)
+
+# this is not accounting for smartphone changers!
 length(unique(al_es_filtered$user_id))
 length(unique(al_es_filtered$e_s_questionnaire_id))
 
