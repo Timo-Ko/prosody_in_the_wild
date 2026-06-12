@@ -5,9 +5,6 @@ packages <- c( "RMariaDB", "DBI", "dbplyr", "lubridate", "tidyr")
 #install.packages(setdiff(packages, rownames(installed.packages())))  
 lapply(packages, library, character.only = TRUE)
 
-# load functions 
-source("code/functions/get_ema_beeps.R")
-
 ### READ IN EXPERIENCE SAMPLING DATA ####
 
 # connect to phonestudy database
