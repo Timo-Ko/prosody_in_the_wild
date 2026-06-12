@@ -96,8 +96,6 @@ saveRDS(al_es_filtered, "data/al_ema.rds")
 
 ### compute ema / audio logging compliance 
 
-es_q <- getEmaBeeps(ps_esquestionnaire)   
-
 # Define when a voice task counts as "completed", rows are EMA instances
 audio_per_beep <- al_es_filtered %>%
   group_by(user_id, es_questionnaire_id = e_s_questionnaire_id) %>%

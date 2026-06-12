@@ -99,7 +99,7 @@ core_feats <- c(
 
 rename_map <- c(
   "A. Voiced segments (per sec)" = "VoicedSegmentsPerSec",
-  "B. F0 variability (2nd-98th percentile range)" = "F0semitoneFrom27.5Hz_sma3nz_pctlrange0-2",
+  "B. F0 range (20th–80th percentile)" = "F0semitoneFrom27.5Hz_sma3nz_pctlrange0-2",
   "C. Loudness (mean)" = "loudness_sma3_amean",
   "D. HNR (dB; mean)" = "HNRdBACF_sma3nz_amean"
 )
