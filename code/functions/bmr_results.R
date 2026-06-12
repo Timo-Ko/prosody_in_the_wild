@@ -28,48 +28,43 @@ extract_bmr_results <- function(bmr, measures) {
 }
 
 
-#' @param data the data frame the ml algos had been trained and tested on
-#' @param bmr_results a data frame with performances measures per fold (output of function above)
-#' @return results.table - a summary table with all performance measures and p values
+#' @param bmr_results a data frame with performance measures per fold
+#' @return results.table - a summary table with median and SD across folds
 
-results_table <- function(data, bmr_results) {
+results_table <- function(bmr_results) {
   library(dplyr)
   
   out <- bmr_results %>%
     group_by(task_id, learner_id) %>%
     summarise(
       # Spearman's rho
-      Md_srho  = median(regr.srho,  na.rm = TRUE),
-      LCI_srho = quantile(regr.srho, 0.025, na.rm = TRUE),
-      UCI_srho = quantile(regr.srho, 0.975, na.rm = TRUE),
+      Md_srho = median(regr.srho, na.rm = TRUE),
+      SD_srho = sd(regr.srho, na.rm = TRUE),
       # CCC
-      Md_ccc  = median(regr.ccc,  na.rm = TRUE),
-      LCI_ccc = quantile(regr.ccc, 0.025, na.rm = TRUE),
-      UCI_ccc = quantile(regr.ccc, 0.975, na.rm = TRUE),
+      Md_ccc = median(regr.ccc, na.rm = TRUE),
+      SD_ccc = sd(regr.ccc, na.rm = TRUE),
       # R^2
-      Md_rsq  = median(regr.rsq,  na.rm = TRUE),
-      LCI_rsq = quantile(regr.rsq, 0.025, na.rm = TRUE),
-      UCI_rsq = quantile(regr.rsq, 0.975, na.rm = TRUE),
+      Md_rsq = median(regr.rsq, na.rm = TRUE),
+      SD_rsq = sd(regr.rsq, na.rm = TRUE),
       # MAE
-      Md_mae  = median(regr.mae,  na.rm = TRUE),
-      LCI_mae = quantile(regr.mae, 0.025, na.rm = TRUE),
-      UCI_mae = quantile(regr.mae, 0.975, na.rm = TRUE),
+      Md_mae = median(regr.mae, na.rm = TRUE),
+      SD_mae = sd(regr.mae, na.rm = TRUE),
       # RMSE
-      Md_rmse  = median(regr.rmse,  na.rm = TRUE),
-      LCI_rmse = quantile(regr.rmse, 0.025, na.rm = TRUE),
-      UCI_rmse = quantile(regr.rmse, 0.975, na.rm = TRUE),
+      Md_rmse = median(regr.rmse, na.rm = TRUE),
+      SD_rmse = sd(regr.rmse, na.rm = TRUE),
       .groups = "drop"
     ) %>%
     arrange(task_id, learner_id) %>%
     mutate(
-      srho = sprintf("%.3f [%.3f, %.3f]", Md_srho, LCI_srho, UCI_srho),
-      ccc  = sprintf("%.3f [%.3f, %.3f]", Md_ccc,  LCI_ccc,  UCI_ccc),
-      rsq  = sprintf("%.3f [%.3f, %.3f]", Md_rsq,  LCI_rsq,  UCI_rsq),
-      mae  = sprintf("%.3f [%.3f, %.3f]", Md_mae,  LCI_mae,  UCI_mae),
-      rmse = sprintf("%.3f [%.3f, %.3f]", Md_rmse, LCI_rmse, UCI_rmse)
+      srho = sprintf("%.3f (SD = %.3f)", Md_srho, SD_srho),
+      ccc  = sprintf("%.3f (SD = %.3f)", Md_ccc,  SD_ccc),
+      rsq  = sprintf("%.3f (SD = %.3f)", Md_rsq,  SD_rsq),
+      mae  = sprintf("%.3f (SD = %.3f)", Md_mae,  SD_mae),
+      rmse = sprintf("%.3f (SD = %.3f)", Md_rmse, SD_rmse)
     ) %>%
     select(task_id, learner_id, srho, ccc, rsq, mae, rmse)
   
   out
 }
+
 

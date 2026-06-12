@@ -290,7 +290,7 @@ saveRDS(bmr_results_folds, "data/bmr_results_folds.rds")
 
 ## create combined overview table of performance
 
-pred_table <- results_table(affect_voice, bmr_results_folds)
+pred_table <- results_table(bmr_results_folds)
 
 # save prediction tables
 write.csv(pred_table, "results/pred_table.csv")
